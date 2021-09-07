@@ -9,7 +9,7 @@ export default function useStorage() {
 
   const addPrediction = async(prediction) => {
     const predictions = await AsyncStorage.getItem('@predictions');
-    await AsyncStorage.setItem('@predictions', JSON.stringify([...(JSON.parse(predictions)??[]), prediction]))
+    await AsyncStorage.setItem('@predictions', JSON.stringify([prediction, ...(JSON.parse(predictions)??[])]))
   }
 
   return ({

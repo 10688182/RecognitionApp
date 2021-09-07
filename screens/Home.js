@@ -14,20 +14,26 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const PredictionCard = ({item}) => {
   return (
-    <View>
-      {item.predictions.map((prediction, index) => (
-        <View key={index}>
-          <Text>{prediction.className}</Text>
-          <Text>{prediction.probability}</Text>
-        </View>
-      ))}
+    <View style={{flexDirection: "row", margin: 15}}>
+      <Image
+        source={{uri: item.image}}
+        style={{height: 140, width: 105, borderRadius: 5}}
+      />
+      <View style={{padding: 10, flex: 1, justifyContent: "space-evenly"}}>
+        {item.predictions.map((prediction, index) => (
+          <View key={index} style={{flexDirection: "row", justifyContent: "space-between"}}>
+            <Text style={{fontSize: 16}}>{prediction.className.split(",")[0]}</Text>
+            <Text style={{fontSize: 16}}>{prediction.probability.toFixed(5)}</Text>
+          </View>
+        ))}
+      </View>
     </View>
   )
 }
 
 const PredictionsEmpty = () => {
   return (
-    <View style={[styles.container, {justifyContent: "center", alignItems: "center", height: "100%", backgroundColor: "green"}]}>
+    <View style={[styles.container, {justifyContent: "center", alignItems: "center", height: "100%"}]}>
       <Text>Nothing To See Here</Text>
     </View>
   )
@@ -36,21 +42,7 @@ const PredictionsEmpty = () => {
 
 export default function Home({ navigation }) {
   const { getPredictions } = useStorage();
-  const [predictions, setPredictions] = useState([{
-    image: "hello",
-    predictions: [{
-      "className": "maraca",
-      "probability": 0.04868842661380768
-    },
-    {
-      "className": "remote control, remote",
-      "probability": 0.030724789947271347
-    },
-    {
-      "className": "seat belt, seatbelt",
-      "probability": 0.030443459749221802
-    }]
-  }]);
+  const [predictions, setPredictions] = useState([]);
 
 
   useEffect(() => {
@@ -59,7 +51,7 @@ export default function Home({ navigation }) {
       console.log(_predictions)
       setPredictions(_predictions)
     })()
-  }, [])
+  })
 
   const navigateCamera = () => {
     navigation.navigate("Camera")
@@ -68,8 +60,8 @@ export default function Home({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
-        style={[styles.container, {backgroundColor: "red"}]}
-        contentContainerStyle={[styles.container, {backgroundColor: "red"}]}
+        style={[styles.container]}
+        contentContainerStyle={[predictions.length < 1 && styles.container]}
         data={predictions}
         keyExtractor={(item, index) => `${index}`}
         renderItem={PredictionCard}
@@ -81,7 +73,7 @@ export default function Home({ navigation }) {
             style={[styles.newButton]}
             onPress={navigateCamera}
           >
-            <Text>New</Text>
+            <Text style={styles.newButtonText}>New</Text>
           </TouchableOpacity>
         </View>
       }
@@ -107,10 +99,13 @@ const styles = StyleSheet.create({
     height: 90,
     width: 90,
     borderRadius: 100,
-    borderWidth: 5,
-    borderColor: "yellow",
+    borderWidth: 7.5,
+    borderColor: "#40999c55",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "blue",
-  }
+    backgroundColor: "#40999c",
+  },
+  newButtonText: {
+    color: "white"
+  },
 });

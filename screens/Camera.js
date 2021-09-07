@@ -36,7 +36,7 @@ export default function CameraScreen({ navigation }) {
         }
       }
     })();
-  }, []);
+  }, [navigation]);
 
   const onCameraReady = () => {
     setIsCameraReady(true);
@@ -91,6 +91,7 @@ export default function CameraScreen({ navigation }) {
       from: image,
       to: fileName
     })
+    setIsPreview(false);
     navigation.navigate("Predict", {image: fileName})
   }
 
@@ -108,30 +109,29 @@ export default function CameraScreen({ navigation }) {
         <View style={[{alignItems: "flex-end", justifyContent: "center", flex: 1}]}>
           {!isPreview &&
             <TouchableOpacity
-              style={[styles.sideButton]}
+              style={[styles.sideButton, {marginRight: 15}]}
               onPress={() => setFlash(!flash)}
             >
-              <Text>Retake</Text>
+              <Text style={styles.sideButtonText}>Flash</Text>
             </TouchableOpacity>
           }
         </View>
-        {isPreview ?
+        {isPreview &&
           <Image
             source={{uri: image}}
             style={styles.camera}
           />
-          :
-          <Camera
-            ref={cameraRef}
-            type={cameraType}
-            style={styles.camera}
-            flashMode={Camera.Constants.FlashMode[flash ? "on" : "off"]}
-            onCameraReady={onCameraReady}
-            onMountError={(error) => {
-              console.log("camera error", error);
-            }}
-          />
         }
+        <Camera
+          ref={cameraRef}
+          type={cameraType}
+          style={[styles.camera, isPreview && {height: 0}]}
+          flashMode={Camera.Constants.FlashMode[flash ? "on" : "off"]}
+          onCameraReady={onCameraReady}
+          onMountError={(error) => {
+            console.log("camera error", error);
+          }}
+        />
       </View>
       {isPreview ?
         <View style={styles.newContainer}>
@@ -139,13 +139,13 @@ export default function CameraScreen({ navigation }) {
             style={[styles.newButton]}
             onPress={cancelPreview}
           >
-            <Text>Retake</Text>
+            <Text style={styles.newButtonText}>Retake</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.newButton]}
             onPress={navigatePrediction}
           >
-            <Text>Use Image</Text>
+            <Text style={styles.newButtonText}>Use Image</Text>
           </TouchableOpacity>
         </View>
         : 
@@ -155,21 +155,21 @@ export default function CameraScreen({ navigation }) {
             onPress={selectPicture}
             disabled={!isCameraReady}
           >
-            <Text>Select</Text>
+            <Text style={styles.sideButtonText}>Select</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.newButton]}
             onPress={takePicture}
             disabled={!isCameraReady}
           >
-            <Text>Capture</Text>
+            <Text style={styles.newButtonText}>Capture</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.sideButton]}
             onPress={switchCamera}
             disabled={!isCameraReady}
           >
-            <Text>Switch</Text>
+            <Text style={styles.sideButtonText}>Switch</Text>
           </TouchableOpacity>
         </View>
       }
@@ -203,20 +203,26 @@ const styles = StyleSheet.create({
     height: 90,
     width: 90,
     borderRadius: 100,
-    borderWidth: 5,
-    borderColor: "yellow",
+    borderWidth: 7.5,
+    borderColor: "#40999c55",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "blue",
+    backgroundColor: "#40999c",
+  },
+  newButtonText: {
+    color: "white"
   },
   sideButton: {
     height: 70,
     width: 70,
     borderRadius: 100,
     borderWidth: 5,
-    borderColor: "yellow",
+    borderColor: "#40999c55",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "blue",
-  }
+    backgroundColor: "#40999c",
+  },
+  sideButtonText: {
+    color: "white"
+  },
 });

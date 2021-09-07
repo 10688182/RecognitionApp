@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
+  TouchableOpacity,
   View, Text, FlatList, Image, Dimensions, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios"
+import * as Speech from 'expo-speech';
+import useStorage from "../hooks/useStorage";
 
 const dimensions = Dimensions.get("window")
 
@@ -29,7 +32,7 @@ const PredictionCard = ({ item }) => {
             borderRadius: 40,
           }}
         >
-          <Text style={{ fontWeight: "bold" }}>{item.probability}%</Text>
+          <Text style={{ fontWeight: "bold" }}>{item.probability.toFixed(5)}%</Text>
         </View>
       </View>
       <View
@@ -41,7 +44,7 @@ const PredictionCard = ({ item }) => {
         }}
       >
         <Text>{item.className}</Text>
-        <Text>{item.probability}% accuracy</Text>
+        <Text>{item.probability.toFixed(5)}% accuracy</Text>
       </View>
     </View>
   );
@@ -56,6 +59,7 @@ const PredictionsEmpty = () => {
 }
 
 export default function Predict({ navigation, route }) {
+  const { addPrediction } = useStorage()
   const { image } = route.params;
   const [loading, setLoading] = useState(true);
   const [predictions, setPredictions] = useState([])
@@ -79,8 +83,12 @@ export default function Predict({ navigation, route }) {
       onUploadProgress: progressEvent => console.log(progressEvent)
     })
     .then(({data}) => {
-      setPredictions(data)
+      setPredictions(data);
       setLoading(false);
+      addPrediction({
+        image,
+        predictions: data
+      })
     })
     .catch(error => {
       setLoading(false);
@@ -90,10 +98,29 @@ export default function Predict({ navigation, route }) {
   useEffect(() => {
     classifyImage()
   }, [])
+  
+  useEffect(() => {
+    if(predictions) {
+      predictions.map(({className}, index) => {
+        if(index === 0) {
+          Speech.speak("This could be a " + className)
+        }
+        else {
+          Speech.speak("or a " + className)
+        }
+      })
+    }
+  }, [predictions])
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.imageHolder}>
+      <View>
+        <TouchableOpacity
+          style={[styles.closeButton]}
+          // onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.sideButtonText}>Close</Text>
+        </TouchableOpacity>
         <Image
           source={{uri: image}}
           style={styles.image}
@@ -126,15 +153,25 @@ const styles = StyleSheet.create({
     justifyContent: "space-evenly",
     alignItems: "center",
   },
-  touchable: {
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#fff",
-    padding: 5,
-    height: "50%",
-    borderRadius: 10,
-  },
   list: {
-    flex: 1.5,
+    flex: 1,
+    marginTop: -25,
+    backgroundColor: "white",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  closeButton: {
+    position: "absolute",
+    top: 15,
+    left: 15,
+    zIndex: 10,
+    height: 70,
+    width: 70,
+    borderRadius: 100,
+    borderWidth: 5,
+    borderColor: "#40999c55",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#40999c",
   },
 });
