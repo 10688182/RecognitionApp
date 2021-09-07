@@ -67,16 +67,14 @@ export default function Home({ navigation }) {
         renderItem={PredictionCard}
         ListEmptyComponent={PredictionsEmpty}
       />
-      {predictions.length > 0 &&
-        <View style={styles.newContainer}>
-          <TouchableOpacity
-            style={[styles.newButton]}
-            onPress={navigateCamera}
-          >
-            <Text style={styles.newButtonText}>New</Text>
-          </TouchableOpacity>
-        </View>
-      }
+      <View style={styles.newContainer}>
+        <TouchableOpacity
+          style={[styles.newButton]}
+          onPress={navigateCamera}
+        >
+          <Text style={styles.newButtonText}>New</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }
